@@ -1,0 +1,21 @@
+<TemplateDefinitions>
+
+	<Components>
+
+		<Plugin>
+			<attr name="name" required="yes" default="AnonymizerDateExtension"/>
+			<attr name="class" required="yes" default="edu.emory.anonymizer.AnonymizerDateExtension" editable="no"/>
+			<attr name="id" required="yes" default="AnonymizerDateExtensionID"/>
+			<attr name="root" required="yes" default="roots/AnonymizerDateExtension"/>
+			<attr name="dateTableFile" required="yes">
+				<helptext>The file containing the dates associated with each PatientID.</helptext>
+			</attr>
+			<attr name="baseDate" required="yes">
+				<helptext>The date to which all injuries are to be reset (YYYYMMDD).</helptext>
+			</attr>
+		</Plugin>
+
+	</Components>
+
+</TemplateDefinitions>
+
