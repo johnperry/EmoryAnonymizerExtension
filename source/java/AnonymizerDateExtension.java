@@ -38,7 +38,7 @@ public class AnonymizerDateExtension extends AbstractPlugin implements Anonymize
 	long baseTime = 0;
 	Hashtable<String,Long> table;
 	SimpleDateFormat dcmDateDF = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-	SimpleDateFormat dcmTimeDF = new SimpleDateFormat("kkmmss", Locale.ENGLISH);
+	SimpleDateFormat dcmTimeDF = new SimpleDateFormat("HHmmss", Locale.ENGLISH);
 	SimpleDateFormat dcmDateTimeDF = new SimpleDateFormat("yyyyMMdd kkmmss", Locale.ENGLISH);
 	SimpleDateFormat inDF = new SimpleDateFormat("M/d/yyyy kk:mm:ss", Locale.ENGLISH);
 
@@ -80,7 +80,7 @@ public class AnonymizerDateExtension extends AbstractPlugin implements Anonymize
 			//Get the method name
 			String method = fnCall.getArg(1).trim();
 
-			//Get the PatientID, which is the index into the table
+			//Get the PatientID to use as the index into the table
 			String patientID = fnCall.context.contents(patientIDTag);
 
 			//Get the injury time
@@ -112,11 +112,17 @@ public class AnonymizerDateExtension extends AbstractPlugin implements Anonymize
 				long hours = rest / oneHour;
 				rest = rest % oneHour;
 				long minutes = rest / oneMinute;
-				return days + " days; "+hours+" hours; "+minutes+" minutes";				
+				return days + " day" + plural(days) + 
+						"; "+hours+" hour" + plural(hours) + 
+							"; "+minutes+" minute" + plural(minutes);				
 			}
 		}
 		catch (Exception returnEmpty) { }
 		return "";
+	}
+	
+	private String plural(long n) {
+		return (n == 1) ? "" : "s";
 	}
 	
 	private String getElementValue(FnCall fnCall, int arg) {
@@ -156,14 +162,18 @@ public class AnonymizerDateExtension extends AbstractPlugin implements Anonymize
 								FileUtil.utf8));
 				String line = br.readLine(); //skip the column headers line
 				while ( (line = br.readLine()) != null ) {
-					String[] cells = line.split(",");
-					String idCell = cells[0].trim();
-					String dateCell = cells[1].trim();
-					String timeCell = cells[2].trim();
-					String dateTime = dateCell + " " + timeCell;
-					Date d = inDF.parse(dateTime);
-					table.put(idCell, new Long(d.getTime()));
+					try {
+						String[] cells = line.split(",");
+						String idCell = cells[0].trim();
+						String dateCell = cells[1].trim();
+						String timeCell = cells[2].trim();
+						String dateTime = dateCell + " " + timeCell;
+						Date d = inDF.parse(dateTime);
+						table.put(idCell, new Long(d.getTime()));
+					}
+					catch (Exception skip) { }
 				}
+				lastModified = file.lastModified();
 			}
 			catch (Exception ex) { }
 			finally { FileUtil.close(br); }
